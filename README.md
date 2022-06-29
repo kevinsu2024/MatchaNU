@@ -2,6 +2,6 @@
 Allows students to select their classes and navigate them on the map.
 Current features include:
 - Quick navigation
-- Reminders
+- Notification reminders
 - Class Schedule
 - Edit class
