@@ -2,6 +2,7 @@
 import Foundation
 import SwiftUI
 import CryptoKit
+import MapKit
 //TESTING
 func compile() -> String{
     
@@ -201,54 +202,29 @@ func scrapeClassroom(rawString: String) -> String{
     return newString
 }
 
-func hasConflict(allClasses: [ClassInfo]) -> [Any]{
-    //First, take the class infos and convert them into an array of [startTime, endTime]
-    var timesList = [[ClassInfo:[Int]](),[ClassInfo:[Int]](),[ClassInfo:[Int]](),[ClassInfo:[Int]](),[ClassInfo:[Int]]()]
-    //timesList is formatted as:
-        //Each row represents a day from Mon to Fri
-        //In each row, each entry is a tuple of [startTime,endTime]
+func ConflictClass(start: Int, end: Int, date: Int, allClasses: [ClassInfo]) -> [Int]{
+    var ClassList: [[Int]] = []
+
     for classes in allClasses{
-        let startTimeString = scrapeStartHoursMinutes(rawString: classes.MeetingInfo)
-        let endTimeString = scrapeEndHoursMinutes(rawString: classes.MeetingInfo)
+        let weekdays = switchDaysWithInt(dowList: scrapeDatesOfWeek(rawString: classes.MeetingInfo))
+        let startTime = separateHourMinute(scrapedString: scrapeStartHoursMinutes(rawString: classes.MeetingInfo))
+        let endTime = separateHourMinute(scrapedString: scrapeEndHoursMinutes(rawString: classes.MeetingInfo))
         
-        if startTimeString != "TBA" && endTimeString != "TBA"{
-            let startTimeInt = Int(newDate(inString: startTimeString).timeIntervalSince1970)
-            let endTimeInt = Int(newDate(inString: endTimeString).timeIntervalSince1970)
-            let dows = switchDaysWithInt(dowList: scrapeDatesOfWeek(rawString: classes.MeetingInfo))
-            //Indexing can be done as dow - 2, since monday starts at 2
-            if !dows.contains(-1){
-                for dow in dows{
-                    timesList[dow-2][classes] = [startTimeInt, endTimeInt]
+        if startTime != [-1,-1] && endTime != [-1,-1] && !weekdays.contains(-1){
+            let startTime = startTime[0] * 60 + startTime[1]
+            let endTime = endTime[0] * 60 + endTime[1]
+            for dow in weekdays{
+                if dow == date{
+                    ClassList.append([startTime, endTime])
                 }
             }
         }
     }
     
-//    let dict = Dictionary(timesList[0].sorted(by: {
-//        $0.value[0] < $1.value[0]
-//    }))
-//    timesList[0] = dict
-//        
-//        
-//    
-//    print(timesList)
     
-    //1. Need to have a count for how many conflict, not just whether there is conflict
-        //Count is used to detemrine the scale factor for the width
-    //2. Optional: Might also need to know which class is the one that causes the conflict
-        //might not need it, because rendering is done in scheduleview.
-    
-    
-//    #If there is a single overlap, then we know to return false.
-//            #The way we would know is if in any meeting, the end time is larger than the start time of the iterated meeting
-//            #If we sort the intervals by start time first, then we can check if each meeting ends before the next one starts
+    print(ClassList.sorted(by: {$0.first! < $1.first!}))
 
-//            intervals.sort()
-//            for i in range(len(intervals)-1):
-//                if intervals[i][1] > intervals[i+1][0]:
-//                    return False
-//            return True
-    return timesList
+    return [0,0]
 }
 
 
